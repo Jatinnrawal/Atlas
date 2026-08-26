@@ -1,0 +1,39 @@
+---
+- name: Bootstrap ATLAS server
+  hosts: atlas_server
+  become: true
+
+  tasks:
+
+    - name: Update installed packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+
+    - name: Install required packages
+      ansible.builtin.dnf:
+        name:
+          - git
+          - curl-minimal
+          - unzip
+          - wget
+        state: present
+
+    - name: Create ATLAS application directory
+      ansible.builtin.file:
+        path: /opt/atlas
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create deployment user
+      ansible.builtin.user:
+        name: atlas
+        shell: /bin/bash
+        create_home: true
+        state: present
+
+    - name: Display bootstrap completion
+      ansible.builtin.debug:
+        msg: "ATLAS server bootstrap completed successfully"

@@ -1,0 +1,10 @@
+
+ansible/.venv/
+ansible/session-manager-plugin.deb
+*.retry
+
+
+terraform/**/.terraform/
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+terraform/**/*.terraform.lock.hcl

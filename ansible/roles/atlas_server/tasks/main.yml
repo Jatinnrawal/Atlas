@@ -1,0 +1,98 @@
+
+---
+- name: Update installed packages
+  ansible.builtin.dnf:
+    name: "*"
+    state: latest
+
+- name: Install required packages
+  ansible.builtin.dnf:
+    name:
+      - git
+      - curl-minimal
+      - unzip
+      - wget
+    state: present
+
+- name: Create ATLAS application directory
+  ansible.builtin.file:
+    path: /opt/atlas
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Create ATLAS app directory
+  ansible.builtin.file:
+    path: /opt/atlas/app
+    state: directory
+    owner: atlas
+    group: atlas
+    mode: "0755"
+
+- name: Create ATLAS config directory
+  ansible.builtin.file:
+    path: /opt/atlas/config
+    state: directory
+    owner: atlas
+    group: atlas
+    mode: "0755"
+
+- name: Create ATLAS logs directory
+  ansible.builtin.file:
+    path: /opt/atlas/logs
+    state: directory
+    owner: atlas
+    group: atlas
+    mode: "0755"
+
+- name: Create deployment user
+  ansible.builtin.user:
+    name: atlas
+    system: true
+    shell: /bin/bash
+    create_home: true
+
+- name: Set ownership of ATLAS directories
+  ansible.builtin.file:
+    path: /opt/atlas
+    owner: atlas
+    group: atlas
+    recurse: true
+
+- name: Display server configuration completion
+  ansible.builtin.debug:
+    msg: "ATLAS server configuration completed successfully"
+
+- name: Deploy ATLAS application
+  ansible.builtin.template:
+    src: atlas-app.sh.j2
+    dest: /opt/atlas/app/atlas-app.sh
+    owner: atlas
+    group: atlas
+    mode: "0755"
+
+- name: Deploy ATLAS application
+  ansible.builtin.copy:
+    src: "{{ playbook_dir }}/../../app/atlas-app.sh"
+    dest: /opt/atlas/app/atlas-app.sh
+    owner: atlas
+    group: atlas
+    mode: "0755"
+  notify: Restart ATLAS service
+
+- name: Create ATLAS systemd service
+  ansible.builtin.template:
+    src: atlas.service.j2
+    dest: /etc/systemd/system/atlas.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart ATLAS service
+
+- name: Enable and start ATLAS service
+  ansible.builtin.systemd:
+    name: atlas
+    enabled: true
+    state: started
+    daemon_reload: true

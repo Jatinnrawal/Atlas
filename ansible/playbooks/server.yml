@@ -1,0 +1,7 @@
+---
+- name: Configure ATLAS server
+  hosts: atlas_server
+  become: true
+
+  roles:
+    - atlas_server

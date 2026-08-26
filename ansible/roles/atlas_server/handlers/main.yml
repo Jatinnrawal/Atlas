@@ -1,0 +1,6 @@
+---
+- name: Restart ATLAS service
+  ansible.builtin.systemd:
+    name: atlas
+    state: restarted
+    daemon_reload: true
