@@ -15,6 +15,8 @@ pipeline {
                     echo "Validating ATLAS project..."
 
                     test -f app/atlas-app.sh
+                    test -f Dockerfile
+                    test -f .dockerignore
                     test -f ansible/playbooks/server.yml
                     test -f ansible/roles/atlas_server/tasks/main.yml
                     test -f ansible/collections/requirements.yml
@@ -32,6 +34,20 @@ pipeline {
                     bash -n app/atlas-app.sh
 
                     echo "Application syntax test passed"
+                '''
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh '''
+                    echo "Building ATLAS Docker image..."
+
+                    docker build -t atlas:1.0.0 .
+
+                    echo "ATLAS Docker image built successfully"
+
+                    docker images atlas:1.0.0
                 '''
             }
         }
@@ -72,11 +88,12 @@ pipeline {
         stage('Deploy') {
             steps {
                 withCredentials([
-                    usernamePassword(
-                        credentialsId: 'aws-atlas',
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                    )
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'atlas-aws-credentials',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]
                 ]) {
                     sh '''
                         cd ansible
@@ -98,11 +115,12 @@ pipeline {
         stage('Verify') {
             steps {
                 withCredentials([
-                    usernamePassword(
-                        credentialsId: 'aws-atlas',
-                        usernameVariable: 'AWS_ACCESS_KEY_ID',
-                        passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                    )
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'atlas-aws-credentials',
+                        accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                    ]
                 ]) {
                     sh '''
                         cd ansible
@@ -126,15 +144,12 @@ pipeline {
 
     post {
         success {
+            echo 'ATLAS pipeline completed.'
             echo 'ATLAS deployment successful!'
         }
 
         failure {
             echo 'ATLAS deployment failed!'
-        }
-
-        always {
-            echo 'ATLAS pipeline completed.'
         }
     }
 }
