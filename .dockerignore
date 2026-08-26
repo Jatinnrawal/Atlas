@@ -1,0 +1,9 @@
+.git
+.gitignore
+.venv
+ansible/.venv
+ansible/.jenkins-venv
+terraform/.terraform
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+
