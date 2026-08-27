@@ -1,0 +1,11 @@
+---
+atlas_ecr_registry: "772954893836.dkr.ecr.ap-south-1.amazonaws.com"
+atlas_ecr_repository: "atlas"
+
+atlas_image_tag: "1.0.0"
+
+atlas_container_name: "atlas"
+
+atlas_image: "{{ atlas_ecr_registry }}/{{ atlas_ecr_repository }}:{{ atlas_image_tag }}"
+
+atlas_aws_region: "ap-south-1"

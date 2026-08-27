@@ -1,14 +1,25 @@
 [Unit]
-Description=ATLAS Application
-After=network.target
+Description=ATLAS Application Container
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
-User=atlas
-Group=atlas
-ExecStart=/opt/atlas/app/atlas-app.sh
-Restart=on-failure
-RestartSec=5
+
+ExecStartPre=/usr/bin/docker pull {{ atlas_image }}
+ExecStartPre=-/usr/bin/docker rm -f {{ atlas_container_name }}
+
+ExecStart=/usr/bin/docker run \
+  --name {{ atlas_container_name }} \
+  --restart unless-stopped \
+  {{ atlas_image }}
+
+ExecStop=/usr/bin/docker stop -t 10 {{ atlas_container_name }}
+
+Restart=always
+RestartSec=10
+TimeoutStartSec=0
 
 [Install]
 WantedBy=multi-user.target

@@ -94,3 +94,48 @@ resource "aws_vpc_endpoint" "ec2messages" {
 
 
 
+# ECR API endpoint
+resource "aws_vpc_endpoint" "ecr_api" {
+  vpc_id            = aws_vpc.atlas.id
+  service_name      = "com.amazonaws.ap-south-1.ecr.api"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = [
+    aws_subnet.private.id
+  ]
+
+  security_group_ids = [
+    aws_security_group.vpce.id
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "atlas-dev-ecr-api-endpoint"
+    Environment = "dev"
+    Project     = "atlas"
+  }
+}
+
+# ECR Docker registry endpoint
+resource "aws_vpc_endpoint" "ecr_dkr" {
+  vpc_id            = aws_vpc.atlas.id
+  service_name      = "com.amazonaws.ap-south-1.ecr.dkr"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = [
+    aws_subnet.private.id
+  ]
+
+  security_group_ids = [
+    aws_security_group.vpce.id
+  ]
+
+  private_dns_enabled = true
+
+  tags = {
+    Name        = "atlas-dev-ecr-dkr-endpoint"
+    Environment = "dev"
+    Project     = "atlas"
+  }
+}
