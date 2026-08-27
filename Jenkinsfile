@@ -128,17 +128,19 @@ pipeline {
                         echo "Checking systemd service..."
 
                         ansible atlas_server \
+                            -b \
                             -m ansible.builtin.command \
                             -a "systemctl is-active atlas"
 
                         echo "Checking ATLAS container..."
 
                         ansible atlas_server \
+                            -b \
                             -m ansible.builtin.command \
                             -a "docker ps --filter name=atlas"
 
                         echo "Deployment verification passed"
-                    '''
+                     '''
                 }
             }
         }
