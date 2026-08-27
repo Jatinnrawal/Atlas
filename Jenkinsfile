@@ -1,3 +1,4 @@
+(.venv) jatin@Jatin:~/atlas$ cat Jenkinsfile
 pipeline {
     agent any
 
