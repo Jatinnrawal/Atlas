@@ -4,3 +4,9 @@
     name: atlas
     state: restarted
     daemon_reload: true
+
+- name: Restart CloudWatch Agent
+  ansible.builtin.systemd:
+    name: amazon-cloudwatch-agent
+    state: restarted
+    

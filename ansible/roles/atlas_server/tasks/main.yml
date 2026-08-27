@@ -1,4 +1,8 @@
 ---
+# ============================================================
+# SYSTEM PACKAGES
+# ============================================================
+
 - name: Update installed packages
   ansible.builtin.dnf:
     name: "*"
@@ -11,11 +15,46 @@
       - awscli
     state: present
 
+
+# ============================================================
+# CLOUDWATCH AGENT
+# ============================================================
+
+- name: Install CloudWatch Agent
+  ansible.builtin.dnf:
+    name: amazon-cloudwatch-agent
+    state: present
+
+- name: Create CloudWatch Agent configuration
+  ansible.builtin.template:
+    src: amazon-cloudwatch-agent.json.j2
+    dest: /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart CloudWatch Agent
+
+- name: Enable and start CloudWatch Agent
+  ansible.builtin.systemd:
+    name: amazon-cloudwatch-agent
+    enabled: true
+    state: started
+
+
+# ============================================================
+# DOCKER
+# ============================================================
+
 - name: Enable and start Docker
   ansible.builtin.systemd:
     name: docker
     enabled: true
     state: started
+
+
+# ============================================================
+# ATLAS DIRECTORIES
+# ============================================================
 
 - name: Create ATLAS application directory
   ansible.builtin.file:
@@ -54,9 +93,19 @@
     groups: docker
     append: true
 
+
+# ============================================================
+# SERVER CONFIGURATION
+# ============================================================
+
 - name: Display server configuration completion
   ansible.builtin.debug:
     msg: "ATLAS server configuration completed successfully"
+
+
+# ============================================================
+# ECR AUTHENTICATION
+# ============================================================
 
 - name: Authenticate Docker with ECR
   ansible.builtin.shell: |
@@ -66,6 +115,11 @@
     AWS_DEFAULT_REGION: "{{ atlas_aws_region }}"
   no_log: true
   changed_when: true
+
+
+# ============================================================
+# ATLAS CONTAINER
+# ============================================================
 
 - name: Pull ATLAS image from ECR
   ansible.builtin.command:
@@ -84,6 +138,11 @@
     cmd: docker rm {{ atlas_container_name }}
   failed_when: false
   changed_when: false
+
+
+# ============================================================
+# SYSTEMD SERVICE
+# ============================================================
 
 - name: Create ATLAS systemd service
   ansible.builtin.template:
