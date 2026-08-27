@@ -61,18 +61,6 @@ pipeline {
         }
 
 
-        stage('Verify Deployment') {
-            steps {
-                sh '''
-                    cd ansible
-
-                    /opt/jenkins-ansible/bin/ansible atlas_server \
-                      -m ansible.builtin.command \
-                      -a "systemctl is-active atlas"
-                '''    
-            }
-        }
-
         stage('Verify') {
             steps {
                 withCredentials([
