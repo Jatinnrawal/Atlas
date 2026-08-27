@@ -66,9 +66,9 @@ pipeline {
                 sh '''
                     cd ansible
 
-                    .venv/bin/ansible atlas_server \
-                    -m ansible.builtin.command \
-                    -a "systemctl is-active atlas"
+                    /opt/jenkins-ansible/bin/ansible atlas_server \
+                      -m ansible.builtin.command \
+                      -a "systemctl is-active atlas"
                 '''    
             }
         }
